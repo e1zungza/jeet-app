@@ -84,21 +84,24 @@ const timetableStatic = {
   "토":[ {time:"10:00~13:00",name:"주말 심화 종합",teacher:"전담팀",room:"강당"} ], "일":[],
 };
 
-export default function App() {
-  const [tab, setTab]       = useState("home");
+export default function App({ user }) {
+  const [tab, setTab]         = useState("home");
   const [student, setStudent] = useState(null);
-  const [tests, setTests]   = useState([]);
-  const [events, setEvents] = useState([]);
+  const [tests, setTests]     = useState([]);
+  const [events, setEvents]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
+  const [error, setError]     = useState(null);
   const [selTest, setSelTest] = useState(null);
-  const [selDay, setSelDay] = useState("월");
-  const [calMonth, setCalMonth] = useState({y:2024,m:6});
+  const [selDay, setSelDay]   = useState("월");
+  const [calMonth, setCalMonth] = useState({y:new Date().getFullYear(),m:new Date().getMonth()+1});
 
   useEffect(()=>{
     async function fetchAll() {
       try {
-        const stuSnap = await getDocs(collection(db,"students"));
+        // 로그인한 전화번호로 학생 찾기
+        const phone = user.phoneNumber.replace("+82","0");
+        const stuQ  = query(collection(db,"students"), where("parentPhone","==",phone));
+        const stuSnap = await getDocs(stuQ);
         if(!stuSnap.empty) {
           const doc = stuSnap.docs[0];
           setStudent({ id:doc.id, ...doc.data() });
@@ -110,6 +113,8 @@ export default function App() {
           );
           const testSnap = await getDocs(testQ);
           setTests(testSnap.docs.map(d=>({ id:d.id, ...d.data() })));
+        } else {
+          setError("등록된 학생 정보가 없습니다. 원장 선생님께 문의해주세요.");
         }
 
         const evtSnap = await getDocs(query(collection(db,"events"), orderBy("date","asc")));
@@ -123,7 +128,7 @@ export default function App() {
       }
     }
     fetchAll();
-  },[]);
+  },[user]);
 
   if(loading) return (
     <div style={{background:T.bg,minHeight:"100vh",fontFamily:"'Noto Sans KR',sans-serif",maxWidth:420,margin:"0 auto"}}>
