@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import { signOut } from "firebase/auth";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 const T = {
@@ -189,7 +190,10 @@ export default function App({ user }) {
             <div style={{fontSize:12,fontWeight:700,color:T.white}}>{student.name}</div>
             <div style={{fontSize:10,color:T.gray}}>{student.grade} · {student.level}</div>
           </div>
-          <div style={{width:32,height:32,borderRadius:"50%",background:T.red+"22",border:`1px solid ${T.red}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>👤</div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <button onClick={()=>signOut(auth)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.gray,fontSize:11,padding:"5px 10px",cursor:"pointer"}}>로그아웃</button>
+            <div style={{width:32,height:32,borderRadius:"50%",background:T.red+"22",border:`1px solid ${T.red}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>👤</div>
+          </div>
         </div>
       </div>
 
